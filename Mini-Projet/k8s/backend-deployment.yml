@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-deployment
+  namespace: exam
+  labels: 
+    app: app
+    tier: backend
+spec:
+  replicas: 2   
+  selector:
+    matchLabels: 
+      app: app
+      tier: backend
+  template:
+    metadata:
+      labels: 
+        app: app
+        tier: backend  
+    spec:                 
+      containers: 
+      - name: backend 
+        image: imyyyyy/backend.image
+        env:   
+          - name: HOST.DB   
+            valueFrom: 
+              configMapKeyRef:
+                name: mongo-configmap   
+                key: host
+          - name: MONGO.DATABASE  
+            valueFrom:
+              configMapKeyRef:
+                name: mongo-configmap  
+                key: name
+          - name: MONGO.USERNAME 
+            valueFrom:
+              secretKeyRef:
+                name: credentials 
+                key: MONGO.USERNAME
+          - name: MONGO.PASSWORD 
+            valueFrom:
+              secretKeyRef:
+                name: credentials
+                key: MONGO.PASSWORD    
+        ports:
+        - containerPort: 5000
+
+        # livenessProbe:
+        # httpGet:
+        #   port: 5000
+        #   path: /health
+        # initialDelaySeconds: 15
+        # timeoutSeconds: 30
+
+        # readinessProbe:
+        # httpGet:
+        #   port: 5000
+        #   path: /ready
+        # initialDelaySeconds: 15
+        # timeoutSeconds: 30
+
+        # startupProbe:
+        # httpGet:
+        #   port: 5000
+        #   path: /start
+        # initialDelaySeconds: 15
+        # timeoutSeconds: 30
+    

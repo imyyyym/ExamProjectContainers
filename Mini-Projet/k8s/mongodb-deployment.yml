@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongodb-deployment
+  namespace: exam
+  labels:
+    app: app 
+    tier: mongodb
+spec:
+  replicas: 2
+  selector: 
+    matchLabels: 
+      app: app
+      tier: mongodb
+  strategy:
+    type: Recreate  
+  template:
+    metadata:
+      labels:
+        app: app
+        tier: mongodb
+    spec:
+      containers:
+      - image: mongo 
+        name: mongo
+        env:
+        - name: MONGO.USERNAME 
+          valueFrom:
+            secretKeyRef:
+              name: credentials 
+              key: MONGO.USERNAME
+        - name: MONGO.PASSWORD 
+          valueFrom:
+            secretKeyRef:
+              name: credentials 
+              key: MANGO.PASSWORD
+        - name: MONGODB.DATABASE 
+          valueFrom:
+            configMapKeyRef:
+              name: credentials
+              key: name
+        ports:
+        - containerPort: 27017
+          name: mongo
+        volumeMounts:        
+        - name: storage
+          mountPath: /var/lib/mongo
+      volumes:
+      - name: storage 
+        persistentVolumeClaim:
+          claimName: mongo-storage
